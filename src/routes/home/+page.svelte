@@ -1,6 +1,8 @@
 <script lang="ts">
 	interface Note {
 		visible: boolean;
+    dir: string;
+    content: string;
 	}
 
 	function actionWhenInViewport(e: Element) {
@@ -25,8 +27,8 @@
 	}
 
 	let notes: Note[] = [];
-	for (let i = 0; i < 20; i++) {
-		notes.push({ visible: false });
+	for (let i = 0; i < 200; i++) {
+		notes.push({ visible: false, dir: i % 2 ? 'right' : 'left', content: `Sussy chungus ${i}` });
 	}
 </script>
 
@@ -37,9 +39,11 @@
 				class="note"
 				use:actionWhenInViewport
 				on:visible="{() => toggleVisibility(id)}"
-				class:visible={array.visible}
+				class:visible="{array.visible}"
+        class:left="{array.dir == 'left'}"
+        class:right="{array.dir == 'right'}"
 			>
-				<p>Sussy chungus</p>
+				<p>{array.content}</p>
 				<div class="button-group">
 					<button>Suss</button>
 					<button>Big chungus</button>
@@ -64,8 +68,7 @@
 		align-items: center;
 
 		opacity: 0;
-		transform: translateX(100px);
-		transition: all 500ms;
+		transition: all 400ms;
 	}
 
 	.note button {
@@ -85,7 +88,7 @@
 	.note-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 40px 30px;
+		gap: 30px 60px;
 		padding: 20px;
 	}
 
@@ -102,8 +105,16 @@
 		overflow-x: hidden;
 	}
 
+  .note.left {
+    transform: translateX(-100px);
+  }
+
+  .note.right {
+    transform: translateX(100px);
+  }
+
 	.note.visible {
 		opacity: 1;
-		transform: translateX(0);
+		transform: translateX(0) !important;
 	}
 </style>
