@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import anime from 'animejs';
 
 	interface Note {
     content: string;
     left: boolean;
-    right: boolean;
 	}
 
 	function visibleInViewport(elem: Element, left: boolean) {
@@ -16,16 +14,18 @@
           return
         }
         
-        console.log(anime.get(entry.target, 'translateX'))
         anime({
           targets: entry.target,
-          translateX: [left ? -300 : 300, 0],
+          translateX: [left ? -noteXOffset : noteXOffset, 0],
           opacity: 1,
           duration: 500,
           delay: 0,
-          rotate: [0, 360],
-          easing: "easeInOutSine"
+          rotate: [left ? 180 : -180, 0],
+          easing: 'easeOutElastic(0.9, 0.6)',
+          scale: [0.5, 1]
         })
+
+        // We don't care about anim anymore >:(
         observer.unobserve(entry.target);
 			},
 			{ threshold: 0.2 }
@@ -37,15 +37,17 @@
 	let notes: Note[] = [];
 	for (let i = 0; i < 200; i++) {
 		notes.push({
-      content: `Sussy chungus ${i}`,
-      left: i % 2 == 0, right: i % 2 == 1
+      content: `${i}: Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
+      left: i % 2 == 0
     });
 	}
+
+  let noteXOffset = 200;
 </script>
 
 <body>
 	<div class="note-container">
-		{#each notes as {content, left, right}}
+		{#each notes as {content, left}}
 			<div
 				use:visibleInViewport={left}
         class="note"
@@ -61,9 +63,11 @@
 </body>
 
 <style>
-  :root {
-    --note-x-offset: 300px;
-  }
+  :global(body) {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 
 	.note {
 		display: flex;
@@ -78,6 +82,7 @@
 		flex-direction: column;
 		align-items: center;
     min-width: 200px;
+    height: 300px;
 
     scale: 1;
 		opacity: 0;
@@ -110,18 +115,4 @@
 		gap: 1.5em;
 		margin-top: auto;
 	}
-
-	:global(body) {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-  .note.left {
-    transform: translateX(calc(var(--note-x-offset) * -1px));
-  }
-
-  .note.right {
-    transform: translateX(var(--note-x-offset));
-  }
 </style>
