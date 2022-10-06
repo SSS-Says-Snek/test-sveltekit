@@ -1,49 +1,56 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import anime from 'animejs';
+
 	interface Note {
-		visible: boolean;
-    dir: string;
     content: string;
+    left: boolean;
+    right: boolean;
 	}
 
-	function actionWhenInViewport(e: Element) {
+	function visibleInViewport(elem: Element, left: boolean) {
 		const observer = new IntersectionObserver(
 			(entries, observer) => {
 				let entry = entries[0];
-
-				if (entry.isIntersecting) {
-					console.log('OMG!!');
-					e.dispatchEvent(new CustomEvent('visible'));
-					observer.unobserve(entry.target);
-				}
+				if (!entry.isIntersecting) {
+          return
+        }
+        
+        console.log(anime.get(entry.target, 'translateX'))
+        anime({
+          targets: entry.target,
+          translateX: [left ? -300 : 300, 0],
+          opacity: 1,
+          duration: 500,
+          delay: 0,
+          rotate: [0, 360],
+          easing: "easeInOutSine"
+        })
+        observer.unobserve(entry.target);
 			},
 			{ threshold: 0.2 }
 		);
 
-		observer.observe(e);
-	}
-
-	function toggleVisibility(id: number) {
-		notes[id].visible = notes[id].visible ? false : true;
+		observer.observe(elem);
 	}
 
 	let notes: Note[] = [];
 	for (let i = 0; i < 200; i++) {
-		notes.push({ visible: false, dir: i % 2 ? 'right' : 'left', content: `Sussy chungus ${i}` });
+		notes.push({
+      content: `Sussy chungus ${i}`,
+      left: i % 2 == 0, right: i % 2 == 1
+    });
 	}
 </script>
 
 <body>
 	<div class="note-container">
-		{#each notes as array, id}
+		{#each notes as {content, left, right}}
 			<div
-				class="note"
-				use:actionWhenInViewport
-				on:visible="{() => toggleVisibility(id)}"
-				class:visible="{array.visible}"
-        class:left="{array.dir == 'left'}"
-        class:right="{array.dir == 'right'}"
+				use:visibleInViewport={left}
+        class="note"
 			>
-				<p>{array.content}</p>
+				<p>{content}</p>
 				<div class="button-group">
 					<button>Suss</button>
 					<button>Big chungus</button>
@@ -54,6 +61,10 @@
 </body>
 
 <style>
+  :root {
+    --note-x-offset: 300px;
+  }
+
 	.note {
 		display: flex;
 		border-radius: 2em;
@@ -66,9 +77,11 @@
 
 		flex-direction: column;
 		align-items: center;
+    min-width: 200px;
 
+    scale: 1;
 		opacity: 0;
-		transition: all 400ms;
+		transition: all 300ms cubic-bezier(.29,.74,.39,.91);
 	}
 
 	.note button {
@@ -102,19 +115,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		overflow-x: hidden;
 	}
 
   .note.left {
-    transform: translateX(-100px);
+    transform: translateX(calc(var(--note-x-offset) * -1px));
   }
 
   .note.right {
-    transform: translateX(100px);
+    transform: translateX(var(--note-x-offset));
   }
-
-	.note.visible {
-		opacity: 1;
-		transform: translateX(0) !important;
-	}
 </style>
