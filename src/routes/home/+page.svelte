@@ -21,7 +21,8 @@
           duration: 500,
           delay: 0,
           rotate: [left ? 180 : -180, 0],
-          easing: 'easeOutElastic(0.9, 0.6)',
+          //easing: 'easeOutElastic(1, 0.6)',
+          easing: 'spring(0.9, 100, 13, 5)',
           scale: [0.5, 1]
         })
 
@@ -77,12 +78,13 @@
 		padding: 20px 30px;
 		width: 20vw;
 
-		word-break: break-all;
+		/*word-break: break-all;*/
+    word-wrap: break-word;
 
 		flex-direction: column;
 		align-items: center;
     min-width: 200px;
-    height: 300px;
+    min-height: 300px;
 
     scale: 1;
 		opacity: 0;
